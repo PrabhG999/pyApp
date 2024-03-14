@@ -86,7 +86,7 @@ class CrudViewset(APIView):
             return Response({"status": "error", "data": "ID is required for patching"},
                             status=status.HTTP_400_BAD_REQUEST)
         # Fetch the specific car to be updated
-        item = Cars.objects.get(id=id)
+        item = Cars.objects.get(car_id=id)
         # Partially update the car data
         serializer = CarsSerializer(item, data=request.data, partial=True)
         # If the updated data is valid
