@@ -58,7 +58,7 @@ class CrudViewset(APIView):
     def get(self, request, id=None):
         # If an ID is provided in the request, fetch a specific car
         if id:
-            item = Cars.objects.get(id=id)
+            item = Cars.objects.get(car_id=id)
             serializer = CarsSerializer(item)
             # Return the serialized car data
             return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
