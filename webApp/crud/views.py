@@ -2,6 +2,8 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 # above are the prebuilt forms for login and signup
+from django.core.mail import send_mail
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -85,3 +87,16 @@ class CrudViewset(APIView):
         item.delete()
         # Return a success response indicating the Car instance has been deleted
         return Response({"status": "success", "data": "Item Deleted"}, status=status.HTTP_200_OK)
+
+    def buy_car(request, car_id):
+        if request.user.is_authenticated:
+            car = models.Cars.objects.get(pk=car_id)
+            send_mail(
+                subject='Car Purchase Confirmation',
+                message=f'You bought {car.car_name} for ${car.price}.',
+                from_email='your-email@example.com',
+                recipient_list=[request.user.email],
+            )
+            return HttpResponse("Purchase successful. Email sent.")
+        else:
+            return HttpResponse("You need to be logged in to buy a car.")
