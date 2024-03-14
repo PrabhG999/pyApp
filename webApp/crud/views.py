@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Cars
 from .serializers import UserSerializer, CarsSerializer
-#View is the heart of the application here uses serializer to to turn sqlquery to json
+
+
+# View is the heart of the application here uses serializer to to turn sqlquery to json
 
 class UserSignUpView(APIView):
     # Allow any user to access this endpoint for signing up

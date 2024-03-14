@@ -1,10 +1,11 @@
+#App level Urls
 from django.urls import path
-from . import views
+from .views import UserSignUpView, UserLoginView, CrudViewset, buy_car
 
 urlpatterns = [
-    path('api/signup/', views.UserSignUpView.as_view(), name='api-signup'),
-    path('api/login/', views.UserLoginView.as_view(), name='api-login'),
-    path('api/crud/', views.CrudViewset.as_view(), name='crud-list-create'),
-    path('api/crud/<int:id>/', views.CrudViewset.as_view(), name='crud-update-delete'),
-    path('api/buy-car/<int:car_id>/', views.buy_car, name='buy-car'),
+    path('signup/', UserSignUpView.as_view(), name='signup'),
+    path('login/', UserLoginView.as_view(), name='login'),
+    path('crud/', CrudViewset.as_view(), name='crud-list-create'),
+    path('crud/<int:id>/', CrudViewset.as_view(), name='crud-update-delete'),
+    path('buy-car/<int:car_id>/', buy_car, name='buy-car'),
 ]
