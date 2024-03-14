@@ -1,10 +1,7 @@
 # crud app endpoints
 # import statements are important
-from django.urls import path, include
-from .views import CrudViewset
-from  .import views
-
-from webApp.crud import admin
+from django.urls import path
+from . import views
 
 urlpatterns = [
     # This URL will match a GET or POST request without an ID.

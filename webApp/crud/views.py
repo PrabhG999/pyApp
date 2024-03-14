@@ -5,7 +5,6 @@ from . import models
 from . import serializers
 
 
-
 class CrudViewset(APIView):
     # The get method retrieves either a list of all Cars or a single Car by ID.
     def get(self, request, id=None):  # parameter have id , if it provided id return the logic if not return all cars
@@ -55,11 +54,13 @@ class CrudViewset(APIView):
             # Returns an error response if the updated data is invalid.
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    # The delete method is for deleting a Car instance by ID.
-    def delete(self, request, id=None):
-        if id is None:
-            return Response({"status": "error", "data": "ID is required for deleting"},
-                            status=status.HTTP_400_BAD_REQUEST)
+
+# The delete method is for deleting a Car instance by ID.
+
+def delete(self, request, id=None):
+    if id is None:
+        return Response({"status": "error", "data": "ID is required for deleting"},
+                        status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Filters the Car instance by ID.
