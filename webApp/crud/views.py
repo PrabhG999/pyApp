@@ -9,7 +9,6 @@ from .serializers import UserSerializer, CarsSerializer
 from django.contrib.auth import authenticate, login
 
 
-
 # View is the heart of the application here uses serializer to to turn sqlquery to json
 
 class UserSignUpView(APIView):
@@ -100,16 +99,37 @@ class CrudViewset(APIView):
         return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id=None):
-        # ID is required for a DELETE request
         if id is None:
-            return Response({"status": "error", "data": "ID is required for deleting"},
+            return Response({"status": "error", "data": "car_id is required for deleting"},
                             status=status.HTTP_400_BAD_REQUEST)
-        # Fetch the specific car to be deleted
-        item = Cars.objects.get(id=id)
-        # Delete the car
-        item.delete()
-        # Respond with a success message
-        return Response({"status": "success", "data": "Item Deleted"}, status=status.HTTP_200_OK)
+        try:
+            item = Cars.objects.get(car_id=id)  # Change id to car_id, which is the actual field name in your model.
+            item.delete()
+            return Response({"status": "success", "data": "Item Deleted"}, status=status.HTTP_200_OK)
+        except Cars.DoesNotExist:
+            return Response({"status": "error", "data": "Car not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, id=None):
+        # ID is required for a PUT request to update the entire car object
+        if id is None:
+            return Response({"status": "error", "data": "car_id is required for updating"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Fetch the specific car to be updated
+            item = Cars.objects.get(car_id=id)
+            # Update the car data with all the data provided
+            serializer = CarsSerializer(item, data=request.data)
+            # If the updated data is valid
+            if serializer.is_valid():
+                # Save the updated car data
+                serializer.save()
+                # Respond with the serialized car data
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            # If the data is not valid, return an error message
+            return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Cars.DoesNotExist:
+            # If the car does not exist, return an error message
+            return Response({"status": "error", "data": "Car not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
