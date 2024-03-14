@@ -68,17 +68,20 @@ class CrudViewset(APIView):
     # The delete method is for deleting a Car instance by ID.
 
     def delete(self, request, id=None):
+        # Check if an ID was provided in the request
         if id is None:
+            # If no ID is provided, return an error response indicating that an ID is required
             return Response({"status": "error", "data": "ID is required for deleting"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-            try:
-                # Filters the Car instance by ID.
-                item = models.Cars.objects.get(id=id)
-            except models.Cars.DoesNotExist:
-                # If the Car instance is not found, it returns an error response.
-                return Response({"status": "error", "data": "Car not found"}, status=status.HTTP_404_NOT_FOUND)
+        # Attempt to retrieve the Car instance by the provided ID
+        try:
+            item = models.Cars.objects.get(id=id)
+        except models.Cars.DoesNotExist:
+            # If the Car instance with the provided ID does not exist, return an error response
+            return Response({"status": "error", "data": "Car not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            # Deletes the Car instance from the database.
-            item.delete()
-            return Response({"status": "success", "data": "Item Deleted"}, status=status.HTTP_200_OK)
+        # If the Car instance is found, delete it from the database
+        item.delete()
+        # Return a success response indicating the Car instance has been deleted
+        return Response({"status": "success", "data": "Item Deleted"}, status=status.HTTP_200_OK)
