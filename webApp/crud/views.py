@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Cars
 from .serializers import UserSerializer, CarsSerializer
+from django.contrib.auth import authenticate, login
+
 
 
 # View is the heart of the application here uses serializer to to turn sqlquery to json
