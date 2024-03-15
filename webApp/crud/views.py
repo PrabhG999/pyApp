@@ -1,61 +1,47 @@
-from django.contrib.auth import login
-from django.core.mail import send_mail
-from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from django.contrib.auth import authenticate, login
+from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.mail import send_mail
+from django.conf import settings
+
 from .models import Cars
 from .serializers import UserSerializer, CarsSerializer
-from django.contrib.auth import authenticate, login
 
 
 # View is the heart of the application here uses serializer to to turn sqlquery to json
 
 class UserSignUpView(APIView):
-    # Allow any user to access this endpoint for signing up
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = []
 
     def post(self, request):
-        # Deserialize the incoming data to a User object
         serializer = UserSerializer(data=request.data)
-        # If the data is valid according to UserSerializer
         if serializer.is_valid():
-            # Save the user to the database
             user = serializer.save()
-            # If the user is successfully created
             if user:
-                # Respond with a success message
                 return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-        # If the data is not valid, return an error message
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginView(APIView):
-    # Allow any user to access this endpoint for logging in
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        # Extract username and password from the request data
         username = request.data.get('username')
         password = request.data.get('password')
-        # Authenticate the user
         user = authenticate(request, username=username, password=password)
-        # If authentication is successful
         if user is not None:
-            # Log the user in (set up the user session)
             login(request, user)
-            # Respond with a success message
+            request.session['user_email'] = user.email  # Store the email in the session
             return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
-        # If authentication fails, return an error message
         else:
             return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CrudViewset(APIView):
     # Handles CRUD operations for Cars model
-
     def get(self, request, id=None):
         # If an ID is provided in the request, fetch a specific car
         if id:
@@ -104,7 +90,8 @@ class CrudViewset(APIView):
             return Response({"status": "error", "data": "car_id is required for deleting"},
                             status=status.HTTP_400_BAD_REQUEST)
         try:
-            item = Cars.objects.get(car_id=id)  # Change id to car_id, which is the actual field name in your model.
+            item = Cars.objects.get(
+                car_id=id)  # Change id to car_id, which is the actual field name in your model.
             item.delete()
             return Response({"status": "success", "data": "Item Deleted"}, status=status.HTTP_200_OK)
         except Cars.DoesNotExist:
@@ -134,24 +121,23 @@ class CrudViewset(APIView):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])  # Authentication
 def buy_car(request, car_id):
-    """
-    Allows an authenticated user to "buy" a car. Upon buying, sends a confirmation email.
-    This method requires the user to be authenticated to proceed.
-    """
     try:
-        # Fetch the specific car intended for purchase
         car = Cars.objects.get(pk=car_id)
-        # Send a confirmation email to the user
+        recipient_email = request.session.get('user_email', 'default_email@example.com')
+
+        if recipient_email == 'default_email@example.com':
+            return Response({"message": "User email not found. Cannot send email."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         send_mail(
             subject='Car Purchase Confirmation',
             message=f'You bought {car.car_name} for ${car.car_price}.',
-            from_email='from@example.com',  # Replace with your actual email
-            recipient_list=[request.user.email],
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[recipient_email],
+            fail_silently=False,
         )
-        # Respond with a purchase success message
-        return Response({"message": "Purchase successful. Email sent."}, status=status.HTTP_200_OK)
+        return Response({"message": "Purchase successful. Email sent to " + recipient_email},
+                        status=status.HTTP_200_OK)
     except Cars.DoesNotExist:
-        # If the car does not exist, return an error message
         return Response({"message": "Car not found"}, status=status.HTTP_404_NOT_FOUND)

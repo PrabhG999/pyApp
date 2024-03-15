@@ -64,10 +64,15 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True  # WARNING: True for development only - allows all domains to make requests to your API.
 
 ROOT_URLCONF = 'webApp.urls'
+# SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.me.com'  # iCloud SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'prabhjeesingh11@icloud.com'
+EMAIL_HOST_PASSWORD = 'aumn-duau-vboa-iwsy'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-SESSION_COOKIE_HTTPONLY:False
+SESSION_COOKIE_HTTPONLY: False
 
 TEMPLATES = [
     {
