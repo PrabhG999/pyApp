@@ -134,7 +134,7 @@ class CrudViewset(APIView):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
+#@permission_classes([permissions.IsAuthenticated]) #Authentication
 def buy_car(request, car_id):
     """
     Allows an authenticated user to "buy" a car. Upon buying, sends a confirmation email.
