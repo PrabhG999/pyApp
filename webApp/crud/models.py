@@ -12,6 +12,9 @@ class Cars(models.Model):
     car_name = models.CharField(max_length=100)
     car_brand = models.CharField(max_length=10)
     car_model = models.CharField(max_length=30)
+    # this will add prices in DB for the car
+    car_price = models.DecimalField(max_digits=15, decimal_places=2,default=0.00)
+    # Post this I will generate an new migration to update the database which is sqllite in our case
 
     # The __str__ method to represent the object as a string, usually useful in the Django admin or shell
     def __str__(self):
